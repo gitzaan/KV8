@@ -1,0 +1,14 @@
+@use '@simpl/element-theme/src/theme';
+
+body {
+  display: flex;
+  flex: auto;
+  flex-direction: column;
+  margin: 0;
+  font-family: 'Siemens Sans', Arial, sans-serif !important;
+}
+
+si-landing-page {
+  --landing-page-logo-width: 180px !important;
+  --landing-page-logo-height: auto  !important;
+}

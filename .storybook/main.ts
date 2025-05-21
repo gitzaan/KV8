@@ -21,14 +21,23 @@ const config: StorybookConfig & StorybookConfigVite = {
   },
   staticDirs: ['../public'],
   async viteFinal(config: UserConfig, { configType }) {
-    // Merge custom configuration into the default config
     const { mergeConfig } = await import('vite');
     const { default: angular } = await import('@analogjs/vite-plugin-angular');
 
     return mergeConfig(config, {
-      // Add dependencies to pre-optimization
       optimizeDeps: {
         include: ['@storybook/angular', '@angular/compiler', '@storybook/blocks', 'tslib', 'zone.js'],
+      },
+      resolve: {
+        preserveSymlinks: true,
+      },
+      css: {
+        preprocessorOptions: {
+          scss: {
+            api: 'legacy',
+            includePaths: ['node_modules'],
+          },
+        },
       },
       define: {
         'process.env': {},
@@ -36,7 +45,13 @@ const config: StorybookConfig & StorybookConfigVite = {
         STORYBOOK_ANGULAR_OPTIONS: JSON.stringify({ experimentalZoneless: false }),
       },
       plugins: [angular({ jit: !isDevMode, liveReload: isDevMode, tsconfig: './.storybook/tsconfig.json' })],
+      build: {
+        rollupOptions: {
+          external: ['@angular/router', '@angular/cdk/overlay', /^@simpl\/.*/],
+        },
+      },
     } satisfies UserConfig);
   },
 };
+
 export default config;

@@ -1,0 +1,175 @@
+<si-landing-page
+  heading="Siveillance Access"
+  subtitle="Protected by Keycloak"
+  [version]="appVersion"
+  [backgroundImageUrl]="backgroundImageUrl"
+  [copyrightDetails]="copyrightDetails"
+  [links]="footerLinks"
+>
+  @let realm = kcContext.realm;
+  @let usernameHidden = kcContext.usernameHidden;
+  @let auth = kcContext.auth;
+  @let messagesPerField = kcContext.messagesPerField;
+  @let url = kcContext.url;
+  @let login = kcContext.login;
+
+  <!-- Alerts -->
+  @if (kcContext.message && displayMessage) {
+    <div class="alert" [ngClass]="'alert-' + (kcContext.message.type || 'warning')">
+      <span [innerHTML]="kcContext.message.summary | kcSanitize: 'html'"></span>
+    </div>
+  }
+
+  <!-- Login Form -->
+  <div class="login-form-container si-body-2">
+    @if (realm?.password) {
+      <form
+        id="kc-form-login"
+        method="post"
+        [action]="url?.loginAction"
+        (onSubmit)="isLoginButtonDisabled.set(true)"
+      >
+        <!-- Username field -->
+        @if (!usernameHidden) {
+          <div class="form-group">
+            <label for="username" class="form-label">
+              @if (!realm?.loginWithEmailAllowed) {
+                {{ i18n.msgStr('username') }}
+              } @else if (!realm?.registrationEmailAsUsername) {
+                {{ i18n.msgStr('usernameOrEmail') }}
+              } @else {
+                {{ i18n.msgStr('email') }}
+              }
+            </label>
+            <div class="input-container">
+              <span class="input-icon user-icon"></span>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                autofocus
+                class="form-control"
+                [value]="login?.username || ''"
+                [attr.aria-invalid]="messagesPerField?.existsError('username', 'password')"
+              />
+            </div>
+            @if (messagesPerField?.existsError('username', 'password')) {
+              <div class="text-danger">
+                {{ messagesPerField.getFirstError('username', 'password') }}
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Password field with properly integrated SiMPL password toggle -->
+        <div class="form-group">
+          <div class="password-header">
+            <label for="password" class="form-label">
+              {{ i18n.msgStr('password') }}
+            </label>
+            @if (realm?.resetPasswordAllowed) {
+              <a [href]="url?.loginResetCredentialsUrl" class="si-title-2 forgot-link">
+                {{ i18n.msgStr('doForgotPassword') }}
+              </a>
+            }
+          </div>
+
+          <div class="input-container">
+              <span class="input-icon password-icon"></span>
+              <si-password-toggle>
+                <input
+                  id="password"
+                  name="password"
+                  class="form-control"
+                  type="password"
+                  autocomplete="off"
+                  [attr.aria-invalid]="messagesPerField?.existsError('username', 'password')"
+                />
+              </si-password-toggle>
+          </div>
+
+          @if (usernameHidden && messagesPerField?.existsError('username', 'password')) {
+            <div class="text-danger">
+              {{ messagesPerField.getFirstError('username', 'password') }}
+            </div>
+          }
+        </div>
+
+        <!-- Remember me checkbox -->
+        @if (realm?.rememberMe && !usernameHidden) {
+          <div class="form-group form-check">
+            <input
+              id="rememberMe"
+              name="rememberMe"
+              type="checkbox"
+              class="form-check-input"
+              [checked]="!!login?.rememberMe"
+            />
+            <label for="rememberMe" class="form-check-label">
+              {{ i18n.msgStr('rememberMe') }}
+            </label>
+          </div>
+        }
+
+        <!-- Login button -->
+        <div class="form-group">
+          <input
+            type="hidden"
+            id="id-hidden-input"
+            name="credentialId"
+            [value]="auth?.selectedCredential || ''"
+          />
+          <button
+            type="submit"
+            name="login"
+            id="kc-login"
+            class="login-btn"
+            [disabled]="isLoginButtonDisabled()"
+          >
+            {{ i18n.msgStr('doLogIn') }}
+          </button>
+        </div>
+      </form>
+    }
+
+
+    @if (displayInfo && realm?.registrationAllowed && !registrationDisabled) {
+      <div class="register-link">
+        {{ i18n.msgStr('noAccount') }}
+        <a [href]="url?.registrationUrl" class="si-title-2 registration-link">
+          {{ i18n.msgStr('doRegister') }}
+        </a>
+      </div>
+    }
+
+    <!-- Social providers section -->
+    @let social = kcContext.social;
+    @if (!!realm?.password && !!social?.providers?.length) {
+      <div class="separator">
+        <span>OR</span>
+      </div>
+      <div class="social-providers">
+        @for (provider of social?.providers; track provider.alias) {
+          <a
+            [href]="provider.loginUrl"
+            [id]="provider.alias"
+            class="social-link"
+          >
+            @if (provider.iconClasses) {
+              <i [ngClass]="provider.iconClasses"></i>
+            }
+            <span [innerHTML]="provider.displayName | kcSanitize: 'html'"></span>
+          </a>
+        }
+      </div>
+    }
+
+    <!-- Productive Data Message -->
+    <div class="productive-data">
+      <div class="si-title-2 text-secondary">Productive Data</div>
+      <div class="text-secondary">
+        You are about to connect to productive data. Please note that changes will take effect immediately.
+      </div>
+    </div>
+  </div>
+</si-landing-page>
