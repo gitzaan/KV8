@@ -36,6 +36,36 @@ export async function getKcPage(pageId: KcContext['pageId']): Promise<KcPage> {
         classes,
       };
 
+    case 'login-update-profile.ftl':
+      return {
+        PageComponent: (await import('./pages/login-update-profile/login-update-profile.component')).LoginUpdateProfileComponent,
+        TemplateComponent,
+        UserProfileFormFieldsComponent,
+        doMakeUserConfirmPassword,
+        doUseDefaultCss,
+        classes,
+      };
+
+    case 'login-reset-password.ftl':
+      return {
+        PageComponent: (await import('./pages/login-reset-password/login-reset-password.component')).LoginResetPasswordComponent,
+        TemplateComponent,
+        UserProfileFormFieldsComponent,
+        doMakeUserConfirmPassword,
+        doUseDefaultCss,
+        classes,
+      };
+
+    case 'login-update-password.ftl':
+      return {
+        PageComponent: (await import('./pages/login-update-password/login-update-password.component')).LoginUpdatePasswordComponent,
+        TemplateComponent,
+        UserProfileFormFieldsComponent,
+        doMakeUserConfirmPassword,
+        doUseDefaultCss,
+        classes,
+      };
+
     default:
       return {
         PageComponent: await getDefaultPageComponent(pageId),

@@ -1,49 +1,76 @@
-@let url = kcContext.url;
-@let isAppInitiatedAction = kcContext.isAppInitiatedAction;
-
-<ng-template #headerNode>
-  {{ i18n.msgStr('loginProfileTitle') }}
-</ng-template>
-<form
-  id="kc-update-profile-form"
-  method="post"
-  [kcClass]="'kcFormClass'"
-  [action]="url.loginAction"
+<si-landing-page
+  heading="Siveillance Access"
+  subtitle="Protected by Keycloak"
+  [version]="appVersion"
+  [backgroundImageUrl]="backgroundImageUrl"
+  [copyrightDetails]="copyrightDetails"
+  [links]="footerLinks"
 >
-  <ng-container [ngComponentOutlet]="userProfileFormFields() ?? null" />
-  <div [kcClass]="'kcFormGroupClass'">
-    <div
-      id="kc-form-options"
-      [kcClass]="'kcFormOptionsClass'"
-    >
-      <div [kcClass]="'kcFormOptionsWrapperClass'"></div>
-    </div>
-    <div
-      id="kc-form-buttons"
-      [kcClass]="'kcFormButtonsClass'"
-    >
-      <input
-        type="submit"
-        [disabled]="!isFormSubmittable()"
-        [kcClass]="{
-          kcButtonClass: true,
-          kcButtonPrimaryClass: true,
-          kcButtonBlockClass: !isAppInitiatedAction,
-          kcButtonLargeClass: true,
-        }"
-        [value]="i18n.msgStr('doSubmit')"
-      />
-      @if (isAppInitiatedAction) {
-        <button
-          type="submit"
-          name="cancel-aia"
-          value="true"
-          formNoValidate
-          [kcClass]="['kcButtonClass', 'kcButtonDefaultClass', 'kcButtonLargeClass']"
-        >
-          {{ i18n.msgStr('doCancel') }}
-        </button>
+  @let url = kcContext.url;
+  @let isAppInitiatedAction = kcContext.isAppInitiatedAction;
+
+  <!-- Profile Update Card -->
+  <si-card heading="{{ i18n.msgStr('loginProfileTitle') }}">
+    <si-icon headerIcon icon="element-edit" class="me-3" />
+
+    <div body class="card-body">
+      <!-- Alert Messages -->
+      @if (kcContext.message) {
+        <div class="alert" [ngClass]="'alert-' + (kcContext.message.type || 'warning')">
+          <span [innerHTML]="kcContext.message.summary | kcSanitize: 'html'"></span>
+        </div>
       }
+
+      <!-- Update Profile Form -->
+      <form
+        id="kc-update-profile-form"
+        method="post"
+        [action]="url.loginAction"
+      >
+        <si-form-container
+          labelWidth="140px"
+          [errorCodeTranslateKeyMap]="errorCodeTranslateKeyMap"
+          [controlNameTranslateKeyMap]="controlNameTranslateKeyMap"
+        >
+          <div si-form-container-content>
+            <div class="simpl-styled-form">
+              <!-- User Profile Form Fields Component -->
+              <ng-container [ngComponentOutlet]="userProfileFormFields() ?? null" />
+            </div>
+          </div>
+
+          <!-- Form Buttons using SiMPL's form container buttons slot -->
+          <div si-form-container-buttons>
+            <button
+              type="submit"
+              [disabled]="!isFormSubmittable()"
+              class="btn btn-primary"
+            >
+              {{ i18n.msgStr('doSubmit') }}
+            </button>
+
+            @if (isAppInitiatedAction) {
+              <button
+                type="submit"
+                name="cancel-aia"
+                value="true"
+                formNoValidate
+                class="btn btn-secondary ms-2"
+              >
+                {{ i18n.msgStr('doCancel') }}
+              </button>
+            }
+          </div>
+        </si-form-container>
+      </form>
     </div>
+  </si-card>
+
+  <!-- Productive Data Message -->
+  <div class="productive-data-notice">
+    <h4 class="productive-data-title">Productive Data</h4>
+    <p class="productive-data-text">
+      You are about to connect to productive data. Please note that changes will take effect immediately.
+    </p>
   </div>
-</form>
+</si-landing-page>
